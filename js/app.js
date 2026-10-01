@@ -107,11 +107,51 @@ function renderProduktListe(liste) {
   container.replaceChildren(...karten);
 }
 
+// ---------------------------------------------------------------------------
+// Suche
+// ---------------------------------------------------------------------------
+
+const suchFeld = document.getElementById("search-input");
+const suchStatus = document.getElementById("search-status");
+
+/**
+ * Filtert die Produkte nach dem Suchbegriff (in Name und Beschreibung,
+ * ohne Beachtung von Groß-/Kleinschreibung) und zeigt nur die Treffer an.
+ */
+function behandleSuche() {
+  const begriff = suchFeld.value.trim().toLowerCase();
+  const treffer = produkte.filter(
+    (p) =>
+      p.name.toLowerCase().includes(begriff) ||
+      p.beschreibung.toLowerCase().includes(begriff)
+  );
+
+  renderProduktListe(treffer);
+
+  // Rückmeldung nur bei aktiver Suche, damit die Startseite ruhig bleibt
+  if (begriff === "") {
+    suchStatus.textContent = "";
+  } else if (treffer.length === 0) {
+    suchStatus.textContent = `Keine Produkte für „${suchFeld.value.trim()}“ gefunden.`;
+  } else {
+    suchStatus.textContent = `${treffer.length} ${treffer.length === 1 ? "Produkt" : "Produkte"} gefunden.`;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Detailmodal
+// ---------------------------------------------------------------------------
+
 const dialog = document.getElementById("product-dialog");
 let ausloesenderButton = null;
 
+// Produkt, das gerade im Modal angezeigt wird (für Gesamtpreis und Kauf)
+let aktuellesProdukt = null;
+
 function oeffneDetailModal(produkt, button) {
   ausloesenderButton = button;
+  aktuellesProdukt = produkt;
+  setzeKaufbereichZurueck();
 
   const bild = document.getElementById("dialog-image");
   bild.src = produkt.bild;
@@ -145,6 +185,83 @@ function behandleDialogGeschlossen() {
     ausloesenderButton = null;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Kaufbereich im Modal (Anzahl + Kaufen)
+// ---------------------------------------------------------------------------
+
+const MIN_ANZAHL = 1;
+const MAX_ANZAHL = 10;
+
+const kaufFormular = document.getElementById("buy-form");
+const anzahlFeld = document.getElementById("quantity-input");
+const gesamtPreis = document.getElementById("buy-total");
+const kaufStatus = document.getElementById("buy-status");
+
+/**
+ * Liest die Anzahl aus dem Eingabefeld und begrenzt sie auf den erlaubten
+ * Bereich. Ungültige Eingaben (leer, Buchstaben) werden zu 1.
+ */
+function leseAnzahl() {
+  const wert = Math.round(Number(anzahlFeld.value));
+  if (!Number.isFinite(wert) || wert < MIN_ANZAHL) {
+    return MIN_ANZAHL;
+  }
+  return Math.min(wert, MAX_ANZAHL);
+}
+
+/** Zeigt den Gesamtpreis für die gewählte Anzahl an. */
+function aktualisiereGesamtpreis() {
+  gesamtPreis.textContent = preisFormat.format(aktuellesProdukt.preis * leseAnzahl());
+}
+
+/** Setzt Anzahl, Gesamtpreis und Kaufmeldung zurück, wenn ein Produkt geöffnet wird. */
+function setzeKaufbereichZurueck() {
+  anzahlFeld.value = MIN_ANZAHL;
+  kaufStatus.textContent = "";
+  aktualisiereGesamtpreis();
+}
+
+/** Erhöht oder verringert die Anzahl über die Buttons „−“ und „+“. */
+function behandleAnzahlSchritt(event) {
+  const button = event.target.closest("button[data-schritt]");
+  if (!button) {
+    return;
+  }
+  anzahlFeld.value = Math.min(
+    Math.max(leseAnzahl() + Number(button.dataset.schritt), MIN_ANZAHL),
+    MAX_ANZAHL
+  );
+  kaufStatus.textContent = "";
+  aktualisiereGesamtpreis();
+}
+
+/**
+ * Simuliert den Kauf. Ohne Backend wird nur eine Bestätigung angezeigt,
+ * die per role="status" auch vom Screenreader vorgelesen wird.
+ */
+function behandleKauf(event) {
+  event.preventDefault();
+  const anzahl = leseAnzahl();
+  anzahlFeld.value = anzahl;
+  const summe = preisFormat.format(aktuellesProdukt.preis * anzahl);
+  kaufStatus.textContent = `Danke! ${anzahl} × ${aktuellesProdukt.name} für ${summe} gekauft (Demo).`;
+}
+
+// ---------------------------------------------------------------------------
+// Event-Listener
+// ---------------------------------------------------------------------------
+
+// Suchformular nicht abschicken (sonst lädt die Seite neu), Filter läuft live
+document.querySelector(".search").addEventListener("submit", (event) => event.preventDefault());
+suchFeld.addEventListener("input", behandleSuche);
+
+kaufFormular.querySelector(".quantity").addEventListener("click", behandleAnzahlSchritt);
+anzahlFeld.addEventListener("input", () => {
+  kaufStatus.textContent = "";
+  aktualisiereGesamtpreis();
+});
+kaufFormular.addEventListener("submit", behandleKauf);
 
 document.getElementById("product-list").addEventListener("click", behandleDetailsKlick);
 dialog.querySelector(".dialog-close").addEventListener("click", () => dialog.close());

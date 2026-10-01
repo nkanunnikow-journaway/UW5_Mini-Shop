@@ -3,17 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Seite ist nur für helles Farbschema gestaltet, Formularelemente passen sich daran an -->
+  <meta name="color-scheme" content="light">
   <title>Mini-Shop</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <!-- Skip-Link: Tastaturnutzer:innen springen direkt zu den Produkten -->
+  <a class="skip-link" href="#product-list">Zu den Produkten springen</a>
+
   <header>
     <h1>Mini-Shop</h1>
+
+    <!-- Suchleiste: filtert die Produktliste live beim Tippen -->
+    <form class="search" role="search">
+      <label for="search-input">Produkte suchen</label>
+      <input type="search" id="search-input" placeholder="z. B. Tasse" autocomplete="off">
+    </form>
   </header>
 
   <main>
+    <!-- Trefferanzahl der Suche, wird vom Screenreader vorgelesen -->
+    <p id="search-status" class="search-status" aria-live="polite"></p>
+
     <!-- Produkt-Listenansicht, wird von js/app.js befüllt -->
-    <section id="product-list" aria-label="Produkte"></section>
+    <section id="product-list" aria-label="Produkte" tabindex="-1"></section>
   </main>
 
   <!-- Detailmodal, wird von js/app.js befüllt und geöffnet -->
@@ -24,6 +38,20 @@
       <h2 id="dialog-title"></h2>
       <p id="dialog-price" class="product-price"></p>
       <p id="dialog-description"></p>
+
+      <!-- Kaufbereich: Anzahl wählen und kaufen (Demo ohne Backend) -->
+      <form id="buy-form" class="buy-form">
+        <label for="quantity-input">Anzahl (1 bis 10)</label>
+        <div class="quantity">
+          <button type="button" class="quantity-step" data-schritt="-1" aria-label="Anzahl verringern">−</button>
+          <input type="number" id="quantity-input" min="1" max="10" value="1" inputmode="numeric">
+          <button type="button" class="quantity-step" data-schritt="1" aria-label="Anzahl erhöhen">+</button>
+        </div>
+        <!-- Gesamtpreis wird bei Änderung der Anzahl vorgelesen -->
+        <p class="buy-total" aria-live="polite">Gesamt: <span id="buy-total"></span></p>
+        <button type="submit" class="buy-button">Kaufen</button>
+        <p id="buy-status" class="buy-status" role="status"></p>
+      </form>
     </div>
   </dialog>
 
