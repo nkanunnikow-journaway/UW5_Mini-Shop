@@ -107,4 +107,48 @@ function renderProduktListe(liste) {
   container.replaceChildren(...karten);
 }
 
+const dialog = document.getElementById("product-dialog");
+let ausloesenderButton = null;
+
+function oeffneDetailModal(produkt, button) {
+  ausloesenderButton = button;
+
+  const bild = document.getElementById("dialog-image");
+  bild.src = produkt.bild;
+  bild.alt = produkt.bildAlt;
+  document.getElementById("dialog-title").textContent = produkt.name;
+  document.getElementById("dialog-price").textContent = preisFormat.format(produkt.preis);
+  document.getElementById("dialog-description").textContent = produkt.beschreibung;
+
+  dialog.showModal();
+}
+
+function behandleDetailsKlick(event) {
+  const button = event.target.closest("button[data-produkt-id]");
+  if (!button) {
+    return;
+  }
+  const produktId = Number(button.dataset.produktId);
+  const produkt = produkte.find((p) => p.id === produktId);
+  oeffneDetailModal(produkt, button);
+}
+
+function behandleDialogKlick(event) {
+  if (event.target === dialog) {
+    dialog.close();
+  }
+}
+
+function behandleDialogGeschlossen() {
+  if (ausloesenderButton) {
+    ausloesenderButton.focus();
+    ausloesenderButton = null;
+  }
+}
+
+document.getElementById("product-list").addEventListener("click", behandleDetailsKlick);
+dialog.querySelector(".dialog-close").addEventListener("click", () => dialog.close());
+dialog.addEventListener("click", behandleDialogKlick);
+dialog.addEventListener("close", behandleDialogGeschlossen);
+
 renderProduktListe(produkte);

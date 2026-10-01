@@ -16,7 +16,16 @@
     <section id="product-list" aria-label="Produkte"></section>
   </main>
 
-  <!-- Detailmodal (nächstes Ticket) -->
+  <!-- Detailmodal, wird von js/app.js befüllt und geöffnet -->
+  <dialog id="product-dialog" aria-labelledby="dialog-title">
+    <div class="dialog-content">
+      <button type="button" class="dialog-close" autofocus>Schließen</button>
+      <img id="dialog-image" alt="" width="400" height="300">
+      <h2 id="dialog-title"></h2>
+      <p id="dialog-price" class="product-price"></p>
+      <p id="dialog-description"></p>
+    </div>
+  </dialog>
 
   <script src="js/app.js"></script>
 </body>
