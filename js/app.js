@@ -68,3 +68,43 @@ const produkte = [
       "LED-Lampe mit drei Helligkeitsstufen und flexiblem Gelenkarm, Energieeffizienzklasse A.",
   },
 ];
+
+const preisFormat = new Intl.NumberFormat("de-DE", {
+  style: "currency",
+  currency: "EUR",
+});
+
+function erstelleProduktKarte(produkt) {
+  const karte = document.createElement("article");
+  karte.className = "product-card";
+
+  const bild = document.createElement("img");
+  bild.src = produkt.bild;
+  bild.alt = produkt.bildAlt;
+  bild.width = 400;
+  bild.height = 300;
+
+  const ueberschrift = document.createElement("h2");
+  ueberschrift.textContent = produkt.name;
+
+  const preis = document.createElement("p");
+  preis.className = "product-price";
+  preis.textContent = preisFormat.format(produkt.preis);
+
+  const detailsButton = document.createElement("button");
+  detailsButton.type = "button";
+  detailsButton.textContent = "Details";
+  detailsButton.setAttribute("aria-label", `Details zu ${produkt.name}`);
+  detailsButton.dataset.produktId = produkt.id;
+
+  karte.append(bild, ueberschrift, preis, detailsButton);
+  return karte;
+}
+
+function renderProduktListe(liste) {
+  const container = document.getElementById("product-list");
+  const karten = liste.map(erstelleProduktKarte);
+  container.replaceChildren(...karten);
+}
+
+renderProduktListe(produkte);
