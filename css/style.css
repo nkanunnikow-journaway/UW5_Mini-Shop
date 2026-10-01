@@ -72,3 +72,64 @@ main {
   outline: 3px solid #f0a500;
   outline-offset: 2px;
 }
+
+#product-dialog {
+  width: min(32rem, calc(100% - 2rem));
+  padding: 0;
+  border: 0;
+  border-radius: 0.5rem;
+}
+
+#product-dialog::backdrop {
+  background: rgb(0 0 0 / 0.6);
+}
+
+body:has(#product-dialog[open]) {
+  overflow: hidden;
+}
+
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.dialog-content img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.25rem;
+}
+
+.dialog-content h2 {
+  margin: 1rem 0 0.25rem;
+}
+
+.dialog-content .product-price {
+  margin: 0 0 0.5rem;
+}
+
+.dialog-content p {
+  margin-top: 0;
+}
+
+.dialog-close {
+  align-self: flex-end;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  border: 1px solid #1f4e79;
+  border-radius: 0.25rem;
+  background: #fff;
+  color: #1f4e79;
+  cursor: pointer;
+}
+
+.dialog-close:hover {
+  background: #eef3f8;
+}
+
+.dialog-close:focus-visible {
+  outline: 3px solid #f0a500;
+  outline-offset: 2px;
+}
